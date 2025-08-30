@@ -28,36 +28,39 @@ jobs:
     needs: build
 
     steps:
-    - run: mkdir b
-    - run: cd b
+    - run: mkdir tmp
+    - run: cd tmp
     
     - uses: actions/checkout@v4
+
+    - run: cd ..
+
+    - name: Archive Source
+      run: tar -czf ./source.tar.gz ./tmp
     
-    - run: mkdir ./lib
+    - run: mkdir ./tmp/lib
     
     - name: Download Built Lib
       uses: actions/download-artifact@v4
       with:
         name: ZLib-linux
-        path: ./lib
+        path: ./tmp/lib
 
     - name: Remove unneeded files and directories
-      run: find . -mindepth 1 -not -path './include' -not -path './lib' -exec rm -rf {} +
+      run: |
+        cd tmp
+        find . -mindepth 1 -not -path './include' -not -path './lib' -exec rm -rf {} +
+        cd ..
       
     - name: Archive Library
-      run: tar -czf ../prebuilt-linux.tar.gz ./
+      run: tar -czf ./prebuilt-linux.tar.gz ./tmp
 
-    - run: cd ..
-    - run: mkdir s
-    - run: cd s
+    - run: cd tmp
     
     - uses: actions/checkout@v4
 
-    - name: Archive Source
-      run: tar -czf ../source.tar.gz ./
-
-    - run: cd ..
-      
+    - run: ls
+    
     - name: Upload Package
       run: |
         curl -X POST \
