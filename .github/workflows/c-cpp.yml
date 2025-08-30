@@ -63,13 +63,13 @@ jobs:
         curl -X POST \
           -H "Authorization: Bearer ${{ secrets.__RAT__ }}" \
           -H "Content-Type: application/octet-stream" \
-          --data-binary @./b/prebuilt-linux.tar.gz \
+          --data-binary @./prebuilt-linux.tar.gz \
           "https://uploads.github.com/repos/${{ github.repository }}/packages/${{ github.sha }}/assets"
         
         curl -X POST \
           -H "Authorization: Bearer ${{ secrets.__RAT__ }}" \
           -H "Content-Type: application/octet-stream" \
-          --data-binary @./s/source.tar.gz \
+          --data-binary @./source.tar.gz \
           "https://uploads.github.com/repos/${{ github.repository }}/packages/${{ github.sha }}/assets"
 
       env:
