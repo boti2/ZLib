@@ -54,12 +54,9 @@ jobs:
       
     - name: Archive Library
       run: tar -czf ./prebuilt-linux.tar.gz ./tmp
-
-    - run: cd tmp
-    
-    - uses: actions/checkout@v4
-
-    - run: ls
+      
+    - name: List Files
+      run: ls
     
     - name: Upload Package
       run: |
