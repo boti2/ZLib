@@ -45,7 +45,7 @@ jobs:
       run: find . -mindepth 1 -not -path './include' -not -path './lib' -exec rm -rf {} +
       
     - name: Archive Library
-      run: tar -czf ./prebuilt-linux.tar.gz ./
+      run: tar -czf ./prebuilt-linux.tar.gz ../
 
     - run: cd ..
     - run: mkdir s
@@ -54,7 +54,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Archive Source
-      run: tar -czf ./source.tar.gz ./
+      run: tar -czf ./source.tar.gz ../
 
     - run: cd ..
       
@@ -63,7 +63,7 @@ jobs:
       with:
         name: "Test Build ${{ github.sha }}"
         files: |
-          ./b/prebuilt-linux.tar.gz
-          ./s/source.tar.gz
+          ./prebuilt-linux.tar.gz
+          ./source.tar.gz
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
