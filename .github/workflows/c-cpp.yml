@@ -58,13 +58,19 @@ jobs:
 
     - run: cd ..
       
-    - name: Upload Built Lib
-      uses: softprops/action-gh-release@v1
-      with:
-        name: "Test Build ${{ github.sha }}"
-        tag_name: test-${{ github.sha }}
-        files: |
-          ./prebuilt-linux.tar.gz
-          ./source.tar.gz
+    - name: Upload Package
+      run: |
+        curl -X POST \
+          -H "Authorization: Bearer ${{ secrets.__RAT__ }}" \
+          -H "Content-Type: application/octet-stream" \
+          --data-binary @./b/prebuilt-linux.tar.gz \
+          "https://uploads.github.com/repos/${{ github.repository }}/packages/${{ github.sha }}/assets"
+        
+        curl -X POST \
+          -H "Authorization: Bearer ${{ secrets.__RAT__ }}" \
+          -H "Content-Type: application/octet-stream" \
+          --data-binary @./s/source.tar.gz \
+          "https://uploads.github.com/repos/${{ github.repository }}/packages/${{ github.sha }}/assets"
+
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.__RAT__ }}
