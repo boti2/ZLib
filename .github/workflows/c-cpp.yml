@@ -11,66 +11,64 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - run: mkdir tmp
 
-    - run: mkdir lib
-    
-    - name: build
-      run: make
+    - uses: actions/checkout@v4
+      with:
+        path: tmp
+      
+    - name: Build and Clean Up
+      run: |
+        make
+        find . -mindepth 1 -not -path './include' -not -path './lib' -not -path './bin' -exec rm -rf {} +
+      working-directory: tmp
+
+    - name: Tar it All Up
+      run: tar -czf ./ZLib.tar.gz ./tmp
 
     - name: Upload Library
       uses: actions/upload-artifact@v4
       with:
-        name: ZLib-linux
-        path: ./lib/ZLib.so
-  release:
-    runs-on: ubuntu-latest
-    needs: build
+        name: ZLib-Linux
+        path: ./ZLib.tar.gz
 
-    steps:
-    - run: mkdir tmp
-    - run: cd tmp
-    
-    - uses: actions/checkout@v4
-
-    - run: cd ..
-
-    - name: Archive Source
-      run: tar -czf ./source.tar.gz ./tmp
-    
-    - run: mkdir ./tmp/lib
-    
-    - name: Download Built Lib
-      uses: actions/download-artifact@v4
-      with:
-        name: ZLib-linux
-        path: ./tmp/lib
-
-    - name: Remove unneeded files and directories
-      run: |
-        cd tmp
-        find . -mindepth 1 -not -path './include' -not -path './lib' -exec rm -rf {} +
-        cd ..
-      
-    - name: Archive Library
-      run: tar -czf ./prebuilt-linux.tar.gz ./tmp
-      
-    - name: List Files
-      run: ls
-    
     - name: Upload Package
       run: |
         curl -X POST \
-          -H "Authorization: Bearer ${{ secrets.__RAT__ }}" \
+          -H "Authorization: Bearer $TOKEN" \
           -H "Content-Type: application/octet-stream" \
-          --data-binary @./prebuilt-linux.tar.gz \
-          "https://uploads.github.com/repos/${{ github.repository }}/packages/${{ github.sha }}/assets"
-        
-        curl -X POST \
-          -H "Authorization: Bearer ${{ secrets.__RAT__ }}" \
-          -H "Content-Type: application/octet-stream" \
-          --data-binary @./source.tar.gz \
-          "https://uploads.github.com/repos/${{ github.repository }}/packages/${{ github.sha }}/assets"
-
+          --data-binary @./ZLib.tar.gz \
+          "https://uploads.github.com/repos/${{ github.repository }}/packages/test${{ github.sha }}/assets?name=ZLib-Linux.test-${{ github.sha }}.tar.gz"
+          
       env:
-        GITHUB_TOKEN: ${{ secrets.__RAT__ }}
+        TOKEN: ${{ secrets.__RAT__ }}
+
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - run: mkdir tmp
+
+    - uses: actions/checkout@v4
+      with:
+        path: tmp
+      
+    - name: Tar it All Up
+      run: tar -czf ./ZLib.tar.gz ./tmp
+
+    - name: Upload Library
+      uses: actions/upload-artifact@v4
+      with:
+        name: ZLib-Linux
+        path: ./ZLib.tar.gz
+
+    - name: Upload Package
+      run: |
+        curl -X POST \
+          -H "Authorization: Bearer $TOKEN" \
+          -H "Content-Type: application/octet-stream" \
+          --data-binary @./ZLib.tar.gz \
+          "https://uploads.github.com/repos/${{ github.repository }}/packages/test${{ github.sha }}/assets?name=ZLib-Source.test-${{ github.sha }}.tar.gz"
+          
+      env:
+        TOKEN: ${{ secrets.__RAT__ }}

